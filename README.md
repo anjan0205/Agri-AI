@@ -34,7 +34,7 @@ Built to win—combining a stunning organic-glassmorphism aesthetic with deeply 
 
 ## 💻 Technical Blueprint
 
-### 💅 Frontend Architecture
+### 🎨 Frontend Architecture
 * **Framework:** React + Vite (`npm run dev`)
 * **Styling:** Tailwind CSS (Custom Dark/Mist Glassmorphism, heavily modified styling variables)
 * **Typography:** Core Google Fonts (`Playfair Display`, `DM Sans`)
