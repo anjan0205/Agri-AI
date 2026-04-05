@@ -1,6 +1,6 @@
 <div align="center">
-  <a href="http://localhost:5173" target="_blank">
-    <img src="https://img.shields.io/badge/Status-Live_on_Localhost-4CAF78?style=for-the-badge&logo=react" alt="Run Locally" />
+  <a href="https://agri-ai-production-89ee.up.railway.app" target="_blank">
+    <img src="https://img.shields.io/badge/Status-Live_Demo-4CAF78?style=for-the-badge&logo=react" alt="Live Demo" />
   </a>
   <img src="https://img.shields.io/badge/Frontend-React%20%7C%20Tailwind-1B4F8A?style=for-the-badge&logo=react" alt="Frontend" />
   <img src="https://img.shields.io/badge/Backend-Python%20Flask-E8A838?style=for-the-badge&logo=python" alt="Backend" />
