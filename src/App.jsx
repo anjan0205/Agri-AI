@@ -104,7 +104,7 @@ export default function App() {
       const soil = soilLookup[inputs.landType] || soilLookup.loamy;
 
       // 2. Transmit exact API match mapping to local Python server for heavy determinism
-      const apiResponse = await fetch('/api/advise', {
+      const apiResponse = await fetch('http://127.0.0.1:5000/api/advise', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -154,9 +154,9 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2">
-              <img src="/logo.png" alt="Agri-AI Logo" className="w-8 h-8 object-contain" />
-              <span className="font-heading font-bold text-2xl text-[#1A6B3C] tracking-tight">Agri-AI</span>
-            </div>
+            <Leaf className="text-[#1A6B3C]" size={28} />
+            <span className="font-heading font-bold text-xl text-[#5C3D2E] tracking-tight">Agri-AI</span>
+          </div>
           </div>
           
           <div className="hidden md:flex items-center gap-2 px-4 py-1.5 bg-[#4CAF78]/10 rounded-full border border-[#4CAF78]/20">

@@ -1,6 +1,6 @@
 <div align="center">
-  <a href="https://agri-ai-production-89ee.up.railway.app" target="_blank">
-    <img src="https://img.shields.io/badge/Status-Live_Demo-4CAF78?style=for-the-badge&logo=react" alt="Live Demo" />
+  <a href="http://localhost:5173" target="_blank">
+    <img src="https://img.shields.io/badge/Status-Live_on_Localhost-4CAF78?style=for-the-badge&logo=react" alt="Run Locally" />
   </a>
   <img src="https://img.shields.io/badge/Frontend-React%20%7C%20Tailwind-1B4F8A?style=for-the-badge&logo=react" alt="Frontend" />
   <img src="https://img.shields.io/badge/Backend-Python%20Flask-E8A838?style=for-the-badge&logo=python" alt="Backend" />
@@ -83,27 +83,6 @@ npm run dev
 > ✅ **Success:** The terminal will output `Local: http://localhost:5173/`. Hold `Ctrl`/`Cmd` and click that link to launch Agri-AI in your browser!
 
 ---
-
-## 🧭 User Navigation Guide
-
-Once the application is running (or you navigate to the live URL), follow these steps to explore the platform:
-
-### 1. Global Reconnaissance (Main Dashboard)
-* **Check Live Climate:** Look at the top "Live Climate Strip". It pings your IP/Region to pull real-time weather data.
-* **Review Soil Intel:** The sidebar on the left displays the default soil analysis parameters.
-
-### 2. Crop Prediction Engine
-* **Select Region/Soil:** Use the dropdown inputs or rely on the defaults.
-* **Hit 'Run Cultivation Analysis':** Click the central action button. The Python neural engine will calculate and render the top optimal crops for those specific conditions.
-* **Analyze Yield vs Market:** Scroll through the results to see projected yields, confidence scores, and current market values.
-
-### 3. Mastermind Greenhouse (Advanced Simulation)
-* **Open the Greenhouse:** Click the **"Open Mastermind Simulator"** button or select the Greenhouse tab.
-* **Tweak the Variables:** Use the futuristic sliders to manipulate **CO2 Concentration**, **Artificial Light**, and **Temperature**.
-* **Watch Real-Time Analytics:** The platform will instantly calculate the "Projected Yield Boost" percentage across different variables and identify any required Chemical Fixes (Nitrogen/Phosphorus adjustments).
-
-### 4. Interactive Data Visualizations
-* **Chart Interactions:** Hover over the 'Yield vs Timeline' Chart.js graphs to compare your personalized projected growth against 5-year historical averages.
 
 ## 🎨 Design Philosophy
 
