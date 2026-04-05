@@ -154,9 +154,9 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2">
-            <Leaf className="text-[#1A6B3C]" size={28} />
-            <span className="font-heading font-bold text-xl text-[#5C3D2E] tracking-tight">Agri-AI</span>
-          </div>
+              <img src="/logo.png" alt="Agri-AI Logo" className="w-8 h-8 object-contain" />
+              <span className="font-heading font-bold text-2xl text-[#1A6B3C] tracking-tight">Agri-AI</span>
+            </div>
           </div>
           
           <div className="hidden md:flex items-center gap-2 px-4 py-1.5 bg-[#4CAF78]/10 rounded-full border border-[#4CAF78]/20">
