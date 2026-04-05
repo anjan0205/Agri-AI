@@ -11,8 +11,22 @@ from crop_advisory_system import (
     CROP_IDEAL_CONDITIONS
 )
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='dist', static_url_path='/')
 CORS(app)  # Allow React frontend to access this API
+
+@app.route('/')
+def serve_react_app():
+    # Serve index.html for root path
+    return app.send_static_file('index.html')
+
+# Also catch-all route for React client-side routing
+@app.route('/<path:path>')
+def serve_static(path):
+    # Check if the file exists in the static folder, otherwise serve index.html
+    if path != "" and os.path.exists(app.static_folder + '/' + path):
+        return app.send_static_file(path)
+    else:
+        return app.send_static_file('index.html')
 
 @app.route('/api/advise', methods=['POST'])
 def advise():
