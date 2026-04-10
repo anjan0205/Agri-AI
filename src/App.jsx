@@ -104,7 +104,7 @@ export default function App() {
       const soil = soilLookup[inputs.landType] || soilLookup.loamy;
 
       // 2. Transmit exact API match mapping to local Python server for heavy determinism
-      const apiResponse = await fetch('http://127.0.0.1:5000/api/advise', {
+      const apiResponse = await fetch('/api/advise', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -150,12 +150,12 @@ export default function App() {
   return (
     <div className="min-h-screen pb-20">
       {/* 1. HEADER BAR */}
-      <header className="sticky top-0 z-50 bg-[#F0F7F2]/90 backdrop-blur-md border-b border-[#D4C5A9]/30">
+      <header className="sticky top-0 z-50 bg-[#0A2617]/95 backdrop-blur-md border-b border-[#1A6B3C]/30 shadow-lg">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2">
-            <Leaf className="text-[#1A6B3C]" size={28} />
-            <span className="font-heading font-bold text-xl text-[#5C3D2E] tracking-tight">Agri-AI</span>
+            <img src="/logo_modern.png" alt="Agri-AI Logo" className="w-9 h-9 object-contain rounded-lg" />
+            <span className="font-heading font-bold text-xl text-white tracking-tight">Agri-AI</span>
           </div>
           </div>
           
@@ -165,9 +165,9 @@ export default function App() {
           </div>
 
           <div className="flex items-center gap-4">
-            <button className="text-[#5C3D2E] hover:text-[#1A6B3C] transition-colors relative">
+            <button className="text-white/80 hover:text-[#4CAF78] transition-colors relative">
               <Bell size={20} />
-              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-[#E8A838] rounded-full border border-[#F0F7F2]"></span>
+              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-[#E8A838] rounded-full border border-[#0A2617]"></span>
             </button>
             <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#1A6B3C] to-[#4CAF78] flex items-center justify-center text-white font-bold text-sm shadow-sm">
               PA

@@ -66,5 +66,6 @@ def advise():
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
-    print("🚀 Agri-AI Backend Server is running on port 5000...")
-    app.run(port=5000, debug=True, use_reloader=False)
+    port = int(os.environ.get("PORT", 5000))
+    print(f"Agri-AI Backend Server is running on port {port}...")
+    app.run(host='0.0.0.0', port=port, debug=True, use_reloader=False)
