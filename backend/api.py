@@ -15,7 +15,14 @@ from crop_advisory_system import (
     CROP_IDEAL_CONDITIONS
 )
 
-app = Flask(__name__, static_folder='../dist', static_url_path='/')
+# Configuration for Static Assets (Absolute path for Railway)
+base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+static_folder = os.path.join(base_dir, 'dist')
+
+print(f"DEBUG: Static folder is located at: {static_folder}")
+print(f"DEBUG: Static folder exists: {os.path.exists(static_folder)}")
+
+app = Flask(__name__, static_folder=static_folder, static_url_path='/')
 CORS(app)  # Allow React frontend to access this API
 
 # ── Load ML Models ──────────────────────────────────────────────────────────
