@@ -18,3 +18,4 @@ venv.bak/
 diag*.txt
 run_out.txt
 test_run.txt
+dist/
