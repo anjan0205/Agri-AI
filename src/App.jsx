@@ -191,6 +191,16 @@ export default function App() {
               Precision agriculture meets AI-driven editorial insights. 
               Deploy localized strategies tailored to earth's micro-climates.
             </p>
+            <div className="mt-6 flex items-center justify-center gap-4">
+              <div className="px-4 py-1.5 bg-[#1A6B3C]/10 rounded-full border border-[#1A6B3C]/20 flex items-center gap-2 shadow-sm">
+                <Sparkles size={16} className="text-[#1A6B3C]" />
+                <span className="text-xs font-bold text-[#1A6B3C] uppercase tracking-wider">Model Accuracy: 85.9%</span>
+              </div>
+              <div className="px-4 py-1.5 bg-[#4CAF78]/10 rounded-full border border-[#4CAF78]/20 flex items-center gap-2 shadow-sm">
+                <BarChart3 size={16} className="text-[#4CAF78]" />
+                <span className="text-xs font-bold text-[#4CAF78] uppercase tracking-wider">Trained on 20k Records</span>
+              </div>
+            </div>
           </motion.div>
         </section>
 
