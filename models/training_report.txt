@@ -1,0 +1,22 @@
+=== Agri-AI Training Report ===
+
+Dataset : C:\Users\Panga Anjan\Desktop\reduced_crop_dataset_20000.csv
+Records : 20,000
+Features: 32
+
+--- Yield Regressor (GBR) ---
+MAE  : 0.4062 t/ha
+R²   : 0.9114
+
+--- Yield Tier Classifier (Voting) ---
+Accuracy: 85.90%
+
+              precision    recall  f1-score   support
+
+        High       0.83      0.82      0.83       686
+         Low       0.83      0.82      0.83       538
+      Medium       0.88      0.88      0.88      1776
+
+    accuracy                           0.86      3000
+   macro avg       0.85      0.84      0.84      3000
+weighted avg       0.86      0.86      0.86      3000

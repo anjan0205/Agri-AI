@@ -1,0 +1,12 @@
+{
+  "classes": [
+    "High",
+    "Low",
+    "Medium"
+  ],
+  "bins": {
+    "Low": "<3.0 t/ha",
+    "Medium": "3.0\u20136.0 t/ha",
+    "High": ">6.0 t/ha"
+  }
+}

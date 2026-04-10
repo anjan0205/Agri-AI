@@ -3,7 +3,6 @@ node_modules/
 __pycache__/
 .env
 env
-models/
 *.pyc
 *.pyo
 *.pyd
