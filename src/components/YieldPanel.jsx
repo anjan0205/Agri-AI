@@ -10,11 +10,13 @@ export default function YieldPanel({ apiData, cropName }) {
   if (!apiData || !apiData.suitability) return null;
 
   const score = apiData.suitability.score;
-  const baseYield = {
+  const baseYieldHA = {
     wheat: 35, rice: 40, maize: 45, cotton: 25, soybean: 30,
     barley: 30, mirchi: 20, tomato: 60, potato: 250, onion: 180,
     sugarcane: 800, sorghum: 28, cabbage: 400, peanut: 15
   }[cropName] || 40;
+
+  const baseYield = baseYieldHA / 2.471; // Convert Hectare base to Acre base
 
   const currentYield = baseYield * (score / 100);
   const optimalYield = baseYield;
@@ -24,7 +26,7 @@ export default function YieldPanel({ apiData, cropName }) {
     labels: ['Current Projected', 'Optimal Target', '5-Year Average'],
     datasets: [
       {
-        label: 'Yield (Qnt/HA)',
+        label: 'Yield (Qnt/Acre)',
         data: [currentYield, optimalYield, avgYield],
         backgroundColor: [
           score < 60 ? '#ba1a1a' : '#005129', // Error Color : Primary Color

@@ -8,7 +8,7 @@ export default function GreenhousePanel({ apiData, cropName, meteoData }) {
     light: 12
   });
 
-  const [isAcreMode, setIsAcreMode] = useState(false);
+  const [isAcreMode, setIsAcreMode] = useState(true);
   const conv = isAcreMode ? 2.471 : 1; 
   const unit = isAcreMode ? 'kg/acre' : 'kg/ha';
 
