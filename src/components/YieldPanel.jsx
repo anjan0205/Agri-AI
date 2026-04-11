@@ -123,7 +123,7 @@ export default function YieldPanel({ apiData, cropName }) {
                       }
                       return (
                         <p className="text-[11px] text-on-surface-variant font-medium">
-                          Current <span className="text-primary font-bold">{val.current}</span> | Required <span className="font-bold">{val.ideal}</span>
+                          Current <span className="text-primary font-bold">{(val.current / 2.471).toFixed(1)} kg/acre</span> | Required <span className="font-bold">{(val.ideal / 2.471).toFixed(1)} kg/acre</span>
                         </p>
                       );
                     })() : (
