@@ -71,7 +71,7 @@ export default function GreenhousePanel({ apiData, cropName, meteoData }) {
         <div className="mt-6 md:mt-0 text-right bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/20 shadow-sm min-w-[240px]">
           <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em] mb-2">Simulated Yield Potential</p>
           <div className="text-5xl font-extrabold serif-text text-primary flex items-baseline justify-end gap-2">
-            {projectedYield.toFixed(1)} <span className="text-sm font-bold text-on-surface-variant italic">Q/ha</span>
+            {(projectedYield / conv).toFixed(1)} <span className="text-sm font-bold text-on-surface-variant italic">Q/{isAcreMode ? 'acre' : 'ha'}</span>
           </div>
           <div className="text-primary font-bold text-xs flex items-center gap-1 justify-end mt-2 uppercase tracking-tight">
             <span className="material-symbols-outlined text-sm">trending_up</span>
