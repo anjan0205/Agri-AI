@@ -133,8 +133,8 @@ def advise():
 
         # Core Engines
         suitability = score_suitability(mapped_features, crop)
-        greenhouse = greenhouse_engine(mapped_features, crop, suitability)
         fertilizers = recommend_fertilizers(mapped_features, crop)
+        greenhouse = greenhouse_engine(mapped_features, crop, suitability, fertilizers)
         
         return jsonify({
             "status": "success",

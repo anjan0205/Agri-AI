@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function GreenhousePanel({ apiData, cropName, meteoData }) {
   const [controls, setControls] = useState({
@@ -44,8 +45,22 @@ export default function GreenhousePanel({ apiData, cropName, meteoData }) {
   const simulationDelta = controls.temp - ambientTemp;
   const requiredDelta = targetTemp - ambientTemp;
 
+  const [selectedIntervention, setSelectedIntervention] = useState(null);
+
   return (
     <div className="bg-surface-container-low border border-outline-variant/10 rounded-[2rem] p-8 shadow-sm overflow-hidden relative">
+      <AnimatePresence>
+        {selectedIntervention && (
+          <PrescriptionModal 
+            intervention={selectedIntervention} 
+            onClose={() => setSelectedIntervention(null)} 
+            conv={conv}
+            unit={unit}
+            cropName={cropName}
+          />
+        )}
+      </AnimatePresence>
+
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end border-b border-outline-variant/20 pb-8 mb-8">
         <div>
           <h2 className="text-3xl font-bold serif-text text-primary italic flex items-center gap-3">
@@ -183,30 +198,51 @@ export default function GreenhousePanel({ apiData, cropName, meteoData }) {
             </button>
           </div>
           <div className="flex-1 space-y-4 overflow-y-auto custom-scrollbar pr-2 max-h-[480px]">
-            {Object.entries(apiData?.greenhouse?.issues || {}).map(([key, val]) => (
-              <div key={key} className="bg-surface-container-lowest p-5 rounded-2xl border border-outline-variant/10 shadow-sm transition-all hover:translate-x-1">
-                <div className="flex justify-between items-center mb-3">
-                  <span className="text-on-surface text-sm font-bold capitalize italic serif-text">{key.replace('_', ' ')} Adjustment</span>
-                  <span className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest ${val.status === 'CRITICAL' ? 'bg-error-container text-on-error-container' : 'bg-tertiary-fixed text-on-tertiary-fixed'}`}>
-                    {val.status} FIX
-                  </span>
+            {Object.entries(apiData?.greenhouse?.issues || {}).map(([key, val]) => {
+              const isNutrient = ['nitrogen', 'phosphorus', 'potassium'].includes(key.toLowerCase());
+              const fertInfo = isNutrient ? Object.entries(apiData?.fertilizers || {}).find(([k,v]) => k.toLowerCase() === key.toLowerCase()) : null;
+              
+              return (
+                <div 
+                  key={key} 
+                  onClick={() => setSelectedIntervention({ key, ...val, fert: fertInfo ? fertInfo[1] : null })}
+                  className="bg-surface-container-lowest p-5 rounded-2xl border border-outline-variant/10 shadow-sm transition-all hover:translate-x-1 hover:border-primary/30 cursor-pointer group"
+                >
+                  <div className="flex justify-between items-center mb-3">
+                    <span className="text-on-surface text-sm font-bold capitalize italic serif-text">{key.replace('_', ' ')} Adjustment</span>
+                    <span className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest ${val.status === 'CRITICAL' ? 'bg-error-container text-on-error-container' : 'bg-tertiary-fixed text-on-tertiary-fixed'}`}>
+                      {val.status} FIX
+                    </span>
+                  </div>
+                  <p className="text-on-surface-variant text-[13px] font-medium leading-relaxed group-hover:text-primary transition-colors">
+                     {val.action}
+                  </p>
+                  <div className="mt-3 flex items-center gap-1 text-[9px] font-black uppercase text-primary opacity-0 group-hover:opacity-100 transition-opacity tracking-widest">
+                    <span>View Detailed Recipe</span>
+                    <span className="material-symbols-outlined text-xs">arrow_forward</span>
+                  </div>
                 </div>
-                <p className="text-on-surface-variant text-[13px] font-medium leading-relaxed">
-                   {val.action}
-                </p>
-              </div>
-            ))}
+              );
+            })}
 
-            {Object.entries(apiData?.fertilizers || {}).filter(([k,v]) => v.status === 'Deficient').map(([k,v]) => (
-              <div key={`fert-${k}`} className="bg-surface-container-lowest p-5 rounded-2xl border border-primary/20 shadow-sm transition-all hover:translate-x-1">
+            {/* Render any fertilizers not already in issues (Fallback) */}
+            {Object.entries(apiData?.fertilizers || {})
+              .filter(([k,v]) => v.status === 'Deficient' && !Object.keys(apiData?.greenhouse?.issues || {}).some(ik => ik.toLowerCase() === k.toLowerCase()))
+              .map(([k,v]) => (
+              <div 
+                key={`fert-${k}`} 
+                onClick={() => setSelectedIntervention({ key: k, action: `Apply ${v.fertilizer}`, fert: v })}
+                className="bg-surface-container-lowest p-5 rounded-2xl border border-primary/20 shadow-sm transition-all hover:translate-x-1 cursor-pointer group"
+              >
                 <div className="flex justify-between items-center mb-3 text-primary">
                    <span className="text-xs font-black uppercase tracking-[0.1em]">{k} DEFICIT (-{(v.deficit / conv).toFixed(1)} {unit})</span>
                    <span className="material-symbols-outlined text-lg">science</span>
                 </div>
-                <p className="text-on-surface text-[13px] font-bold leading-relaxed mb-1">
+                <p className="text-on-surface text-[13px] font-bold leading-relaxed mb-1 group-hover:text-primary transition-colors">
                    Add {v.dose_raw ? (v.dose_raw / conv).toFixed(1) : (parseFloat(v.dose_kg_ha) / conv).toFixed(1)} {unit} of {v.fertilizer}
                 </p>
                 <p className="text-primary text-[10px] uppercase font-black tracking-widest opacity-60 italic">{v.timing}</p>
+                <div className="mt-2 text-[9px] font-black uppercase text-primary opacity-0 group-hover:opacity-100 transition-opacity">View Prescription</div>
               </div>
             ))}
           </div>
@@ -215,3 +251,100 @@ export default function GreenhousePanel({ apiData, cropName, meteoData }) {
     </div>
   );
 }
+
+function PrescriptionModal({ intervention, onClose, conv, unit, cropName }) {
+  const { key, action, fert, status } = intervention;
+  
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 sm:p-12">
+      <motion.div 
+        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+        onClick={onClose}
+        className="absolute inset-0 bg-on-surface/40 backdrop-blur-sm"
+      />
+      <motion.div 
+        initial={{ scale: 0.9, opacity: 0, y: 20 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.9, opacity: 0, y: 20 }}
+        className="relative w-full max-w-2xl bg-surface rounded-[2.5rem] shadow-2xl overflow-hidden border border-outline-variant/20"
+      >
+        <div className="primary-gradient p-10 text-white relative">
+          <button onClick={onClose} className="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-all">
+            <span className="material-symbols-outlined">close</span>
+          </button>
+          <div className="flex items-center gap-4 mb-4">
+             <span className="material-symbols-outlined text-4xl">description</span>
+             <div>
+               <p className="text-xs font-bold uppercase tracking-[0.3em] opacity-70">Mastermind Prescription</p>
+               <h3 className="text-3xl font-bold serif-text italic capitalize">{key.replace('_', ' ')} Correction Report</h3>
+             </div>
+          </div>
+          <div className="flex gap-3">
+             <span className="px-3 py-1 bg-white/20 rounded-full text-[10px] font-black uppercase tracking-widest">{status || 'HIGH'} PRIORITY</span>
+             <span className="px-3 py-1 bg-white/20 rounded-full text-[10px] font-black uppercase tracking-widest">Crop: {cropName}</span>
+          </div>
+        </div>
+
+        <div className="p-10 space-y-8 max-h-[60vh] overflow-y-auto custom-scrollbar">
+          <section className="space-y-4">
+             <h4 className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-primary">
+               <span className="material-symbols-outlined text-lg">analytics</span>
+               Nutrient Gap Analysis
+             </h4>
+             <div className="grid grid-cols-2 gap-4">
+                <div className="bg-surface-container-low p-4 rounded-2xl">
+                   <p className="text-[10px] font-bold text-on-surface-variant uppercase mb-1">Current Soil State</p>
+                   <p className="text-2xl font-bold serif-text text-on-surface">{fert?.current || 'N/A'} <span className="text-xs font-normal opacity-60">PPM</span></p>
+                </div>
+                <div className="bg-primary-container p-4 rounded-2xl">
+                   <p className="text-[10px] font-bold text-primary uppercase mb-1">Target Ideal</p>
+                   <p className="text-2xl font-bold serif-text text-primary">{fert?.ideal || 'N/A'} <span className="text-xs font-normal opacity-60">PPM</span></p>
+                </div>
+             </div>
+          </section>
+
+          <section className="bg-surface-container-high p-8 rounded-3xl border border-primary/10 relative overflow-hidden">
+             <div className="absolute top-0 right-0 p-4 opacity-5">
+                <span className="material-symbols-outlined text-9xl">science</span>
+             </div>
+             <h4 className="text-xs font-black uppercase tracking-widest text-primary mb-6">Actionable Prescription</h4>
+             <div className="space-y-6">
+                <div>
+                   <p className="text-[10px] font-bold text-on-surface-variant uppercase mb-2">Requirement Per {unit.split('/')[1]}</p>
+                   <p className="text-4xl font-extrabold text-primary serif-text italic leading-none">
+                     {fert?.dose_raw ? (fert.dose_raw / conv).toFixed(1) : (parseFloat(fert?.dose_kg_ha) / conv || 0).toFixed(1)} {unit}
+                   </p>
+                </div>
+                <div className="space-y-3">
+                   <div className="flex items-center gap-3">
+                      <span className="material-symbols-outlined text-primary text-xl">inventory_2</span>
+                      <p className="text-sm font-bold text-on-surface">Product: <span className="text-primary">{fert?.fertilizer || 'Manual Adjustment Needed'}</span></p>
+                   </div>
+                   <div className="flex items-center gap-3">
+                      <span className="material-symbols-outlined text-primary text-xl">schedule</span>
+                      <p className="text-sm font-medium text-on-surface-variant italic leading-relaxed">
+                         {fert?.timing || "Apply as per standard regional agronomy guidelines for greenhouse climates."}
+                      </p>
+                   </div>
+                </div>
+             </div>
+          </section>
+
+          <div className="p-5 bg-tertiary-container rounded-2xl flex items-start gap-4 border border-tertiary/10">
+             <span className="material-symbols-outlined text-on-tertiary-container mt-1">lightbulb</span>
+             <p className="text-xs font-medium text-on-tertiary-container leading-relaxed">
+                <strong className="block mb-1 italic">Agronomist Pro-Tip:</strong>
+                For maximum uptake efficiency, apply during low solar radiation periods and ensure immediate irrigation to prevent volatization.
+             </p>
+          </div>
+        </div>
+
+        <div className="p-8 bg-surface-container-lowest border-t border-outline-variant/30 flex justify-end gap-4">
+           <button onClick={onClose} className="px-8 py-3 rounded-xl font-bold text-sm uppercase tracking-widest text-on-surface-variant hover:bg-surface-variant transition-colors">Dismiss</button>
+           <button onClick={onClose} className="primary-gradient px-8 py-3 rounded-xl font-bold text-sm uppercase tracking-widest text-white shadow-lg shadow-primary/20">Acknowledge</button>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+

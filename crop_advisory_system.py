@@ -322,10 +322,10 @@ def score_suitability(features: dict, crop: str) -> dict:
 
 
 # ── STEP 6 — GREENHOUSE ENGINE ──────────────────────────────────────────────
-def greenhouse_engine(features: dict, crop: str, suitability: dict) -> dict:
+def greenhouse_engine(features: dict, crop: str, suitability: dict, fertilizers: dict = None) -> dict:
     """
     Proposes actionable greenhouse interventions to fix suboptimal/critical features.
-    Recalculates a simulated 'After' suitability score.
+    Injects specific fertilizer recommendations if provided.
     """
     adjusted_features = dict(features)
     issues_actions = {}
@@ -354,6 +354,16 @@ def greenhouse_engine(features: dict, crop: str, suitability: dict) -> dict:
             else:
                 dose = (curr - ideal) * 500
                 action = f"Apply elemental sulfur {round(dose)} kg/ha"
+        elif feat in ["nitrogen", "phosphorus", "potassium"]:
+            if fertilizers:
+                # Map feat name to fertilizer dict keys (case insensitive find)
+                f_data = next((v for k, v in fertilizers.items() if k.lower() == feat), None)
+                if f_data and f_data.get("status") == "Deficient":
+                    action = f"Apply {f_data['dose_kg_ha']} of {f_data['fertilizer']} to correct {feat} deficit. Click for detail."
+                else:
+                    action = "Optimize nutrient levels via precision fertigation"
+            else:
+                action = "Optimize nutrient levels via fertigation"
         elif feat == "wind_speed":
             action = "Install windbreaks or perimeter shelter belts" if curr > ideal else "Greenhouse is protected - no action needed"
         else:
