@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { Settings, ShieldCheck, Download, Activity, Cpu } from 'lucide-react';
+import React, { useState } from 'react';
 
 export default function GreenhousePanel({ apiData, cropName, meteoData }) {
   const [controls, setControls] = useState({
@@ -30,147 +29,171 @@ export default function GreenhousePanel({ apiData, cropName, meteoData }) {
   const boostPercent = Math.max(0, ((projectedYield / (baseYield * (apiData.suitability.score/100))) - 1) * 100);
 
   const handleDownload = () => {
-    const text = `AGRI-AI MASTER GREENHOUSE PLAN\n\nCrop: ${cropName.toUpperCase()}\nTarget Yield: ${projectedYield.toFixed(1)} Q/ha (+${boostPercent.toFixed(1)}% Boost)\n\nSettings:\n- Temp: ${controls.temp} C\n- Humidity: ${controls.humidity}%\n- CO2: ${controls.co2} ppm\n- Light Run: ${controls.light} hrs/day\n\nAI Recommends:\n${Object.values(apiData?.greenhouse?.issues || {}).map(v => '- ' + v.action).join('\n')}`;
+    const text = `AGRI-AI MASTER BLUEPRINT\n\nCrop: ${cropName.toUpperCase()}\nSimulated Yield: ${projectedYield.toFixed(1)} Q/ha\nBoost: +${boostPercent.toFixed(1)}%\n\nAtmospheric Config:\n- Temp: ${controls.temp} C\n- Humidity: ${controls.humidity}%\n- CO2: ${controls.co2} ppm\n- Lighting: ${controls.light} hrs\n\nInterventions:\n${Object.values(apiData?.greenhouse?.issues || {}).map(v => '- ' + v.action).join('\n')}`;
     const blob = new Blob([text], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');a.href = url;a.download = 'greenhouse_simulation.txt';
+    const a = document.createElement('a');a.href = url;a.download = 'greenhouse_blueprint.txt';
     a.click();
   };
 
+  const ambientTemp = meteoData?.current?.temperature_2m || apiData?.mapped_features?.temperature || controls.temp;
+  const simulationDelta = controls.temp - ambientTemp;
+  const requiredDelta = targetTemp - ambientTemp;
+
   return (
-    <div className="bg-white/80 backdrop-blur-xl border border-[#D4C5A9]/40 rounded-3xl p-8 shadow-xl overflow-hidden relative">
-      <div className="flex justify-between items-end border-b border-[#D4C5A9]/20 pb-6 mb-8 relative z-10">
+    <div className="bg-surface-container-low border border-outline-variant/10 rounded-[2rem] p-8 shadow-sm overflow-hidden relative">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end border-b border-outline-variant/20 pb-8 mb-8">
         <div>
-          <h2 className="text-3xl font-heading text-[#1A6B3C] font-bold flex items-center gap-3">
-            <Cpu className="text-[#4CAF78]" /> Simulated Optimal Environment
+          <h2 className="text-3xl font-bold serif-text text-primary italic flex items-center gap-3">
+             Simulated Greenhouse Environment
           </h2>
-          <p className="text-gray-500 font-medium text-sm mt-2">Adjust atmospheric sliders to preview compounding yield effects natively.</p>
+          <p className="text-on-surface-variant font-medium mt-2">Precision climate modulation to unlock maximum genetic yield potential.</p>
         </div>
-        <div className="text-right bg-white p-4 rounded-2xl border border-[#D4C5A9]/30 shadow-sm">
-          <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">Projected Yield</p>
-          <div className="text-4xl font-extrabold font-heading text-[#1A6B3C] flex items-baseline justify-end gap-2">
-            {projectedYield.toFixed(1)} <span className="text-sm font-medium text-gray-500 font-sans">Q/ha</span>
+        <div className="mt-6 md:mt-0 text-right bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/20 shadow-sm min-w-[240px]">
+          <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em] mb-2">Simulated Yield Potential</p>
+          <div className="text-5xl font-extrabold serif-text text-primary flex items-baseline justify-end gap-2">
+            {projectedYield.toFixed(1)} <span className="text-sm font-bold text-on-surface-variant italic">Q/ha</span>
           </div>
-          <div className="text-[#4CAF78] font-bold text-sm flex items-center gap-1 justify-end mt-1">
-            <Activity size={14} /> +{boostPercent.toFixed(1)}% Boost Detected
+          <div className="text-primary font-bold text-xs flex items-center gap-1 justify-end mt-2 uppercase tracking-tight">
+            <span className="material-symbols-outlined text-sm">trending_up</span>
+            +{boostPercent.toFixed(1)}% Efficiency Boost
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 relative z-10">
-        {/* Sliders */}
-        <div className="space-y-6 bg-white p-6 rounded-3xl border border-[#D4C5A9]/30 shadow-sm flex flex-col justify-start">
-          <h3 className="font-bold text-[#1A6B3C] uppercase tracking-widest text-xs mb-4 flex items-center gap-2">
-            <Settings size={14} /> Mastermind Control Dashboard
-          </h3>
-          
-          <div className="flex items-center gap-4 bg-orange-50 p-4 rounded-2xl border border-orange-200 mb-6 mt-2 shadow-sm">
-            <div className="p-3 bg-white rounded-xl shadow-sm text-orange-500 hidden sm:block">
-               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"/><path d="M12 9v3"/></svg>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+        {/* Sliders Area */}
+        <div className="space-y-8 bg-surface-container-lowest p-8 rounded-3xl border border-outline-variant/20 shadow-sm">
+          <div className="flex justify-between items-center mb-2">
+            <h3 className="font-bold text-primary uppercase tracking-[0.2em] text-[10px] flex items-center gap-2">
+              <span className="material-symbols-outlined text-lg">settings_input_component</span>
+              Atmospheric Modulators
+            </h3>
+            <div className="flex gap-4">
+               <div className="text-right">
+                  <p className="text-[8px] font-bold text-on-surface-variant uppercase tracking-widest">Ambient</p>
+                  <p className="text-xs font-bold text-on-surface">{ambientTemp}°C</p>
+               </div>
+               <div className="text-right">
+                  <p className="text-[8px] font-bold text-primary uppercase tracking-widest">Target</p>
+                  <p className="text-xs font-bold text-primary">{targetTemp}°C</p>
+               </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-5 bg-surface-container-low p-5 rounded-2xl border border-primary/5 shadow-sm">
+            <div className={`p-3 rounded-xl shadow-sm material-symbols-outlined text-white ${simulationDelta >= 0 ? 'bg-primary' : 'bg-tertiary'}`}>
+               {simulationDelta >= 0 ? 'heat_base' : 'ac_unit'}
             </div>
             <div className="flex-1">
-              <p className="text-[10px] text-orange-600 font-bold uppercase tracking-widest">Climate Adjustment</p>
-              <p className="text-xl font-extrabold text-gray-900">
-                {apiData?.mapped_features?.temperature ? (targetTemp - apiData.mapped_features.temperature > 0 ? '+' : '') : ''}
-                {apiData?.mapped_features?.temperature ? (targetTemp - apiData.mapped_features.temperature).toFixed(1) : '-'}°C
-                <span className="text-sm font-medium text-gray-500 ml-2">Targeting {targetTemp}°C</span>
-              </p>
+              <p className="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest mb-0.5">Climate Adjustment</p>
+              <div className="flex items-baseline gap-2">
+                <p className="text-3xl font-extrabold text-on-surface serif-text italic leading-none">
+                  {simulationDelta > 0 ? '+' : ''}{simulationDelta.toFixed(1)}°C
+                </p>
+                <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-tight">Simulated Delta</span>
+              </div>
             </div>
-            <div className={`px-4 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider shadow-sm ${apiData?.mapped_features?.temperature && targetTemp - apiData.mapped_features.temperature > 0 ? 'bg-red-100 text-red-600' : 'bg-blue-100 text-blue-600'}`}>
-               {apiData?.mapped_features?.temperature && targetTemp - apiData.mapped_features.temperature > 0 ? 'Heating Active' : 'Cooling Active'}
+            <div className="text-right">
+               <p className="text-[10px] font-bold text-primary uppercase tracking-widest mb-0.5">Required</p>
+               <p className={`text-sm font-bold serif-text ${requiredDelta > 0 ? 'text-primary' : 'text-tertiary'}`}>
+                 {requiredDelta > 0 ? '+' : ''}{requiredDelta.toFixed(1)}°C
+               </p>
             </div>
           </div>
           
-          <div className="space-y-2 mt-2">
-            <div className="flex justify-between text-sm font-bold text-gray-700">
-              <span>Temperature</span>
-              <span>{controls.temp}°C / Target: {targetTemp}°C</span>
+          <div className="space-y-2">
+            <div className="flex justify-between text-xs font-bold text-on-surface-variant uppercase tracking-wider">
+              <span>Dynamic Temperature</span>
+              <span className="text-primary">{controls.temp}°C</span>
             </div>
             <input 
               type="range" min="15" max="35" step="0.5"
               value={controls.temp} onChange={(e) => setControls(p => ({...p, temp: Number(e.target.value)}))}
-              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#1A6B3C]"
+              className="w-full h-1.5 bg-surface-variant rounded-full appearance-none cursor-pointer accent-primary"
             />
           </div>
 
           <div className="space-y-2">
-            <div className="flex justify-between text-sm font-bold text-gray-700">
-              <span>Relative Humidity</span>
-              <span>{controls.humidity}% / Target: {targetHum}%</span>
+            <div className="flex justify-between text-xs font-bold text-on-surface-variant uppercase tracking-wider">
+              <span>RH Modulation</span>
+              <span className="text-primary">{controls.humidity}%</span>
             </div>
             <input 
               type="range" min="40" max="90" step="1"
               value={controls.humidity} onChange={(e) => setControls(p => ({...p, humidity: Number(e.target.value)}))}
-              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#1A6B3C]"
+              className="w-full h-1.5 bg-surface-variant rounded-full appearance-none cursor-pointer accent-primary"
             />
           </div>
 
           <div className="space-y-2">
-            <div className="flex justify-between text-sm font-bold text-gray-700">
-              <span>CO₂ Enrichment</span>
-              <span>{controls.co2} ppm</span>
+            <div className="flex justify-between text-xs font-bold text-on-surface-variant uppercase tracking-wider">
+              <span>CO₂ Saturation</span>
+              <span className="text-primary">{controls.co2} ppm</span>
             </div>
             <input 
               type="range" min="400" max="1200" step="50"
               value={controls.co2} onChange={(e) => setControls(p => ({...p, co2: Number(e.target.value)}))}
-              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#E8A838]"
+              className="w-full h-1.5 bg-surface-variant rounded-full appearance-none cursor-pointer accent-tertiary"
             />
           </div>
 
           <div className="space-y-2">
-            <div className="flex justify-between text-sm font-bold text-gray-700">
-              <span>Artificial Lighting (Hours)</span>
-              <span>{controls.light} hrs/day</span>
+            <div className="flex justify-between text-xs font-bold text-on-surface-variant uppercase tracking-wider">
+              <span>Radiation Pulse (Hrs)</span>
+              <span className="text-primary">{controls.light} hrs/day</span>
             </div>
             <input 
               type="range" min="10" max="16" step="0.5"
               value={controls.light} onChange={(e) => setControls(p => ({...p, light: Number(e.target.value)}))}
-              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#E8A838]"
+              className="w-full h-1.5 bg-surface-variant rounded-full appearance-none cursor-pointer accent-tertiary"
             />
           </div>
 
           <button 
             onClick={handleDownload}
-            className="w-full mt-6 bg-[#1A6B3C] hover:bg-[#13542E] text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2 transition-colors shadow-md"
+            className="w-full mt-6 primary-gradient text-white py-5 rounded-2xl font-bold flex items-center justify-center gap-3 transition-all shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 text-sm uppercase tracking-widest"
           >
-            <Download size={18} /> Download Master Blueprint
+            <span className="material-symbols-outlined">download</span>
+            Generate Master Blueprint
           </button>
         </div>
 
-        {/* Diagnostic Interventions from Python Backend API */}
-        <div className="bg-[#F0F7F2] border border-[#D4C5A9]/30 p-6 rounded-3xl h-full flex flex-col shadow-inner">
-          <h3 className="font-bold text-[#1A6B3C] uppercase tracking-widest text-xs mb-4 flex items-center gap-2">
-            <ShieldCheck size={14} /> AI Recommended Interventions
+        {/* Diagnostic Interventions */}
+        <div className="flex flex-col gap-6">
+          <h3 className="font-bold text-primary uppercase tracking-[0.2em] text-[10px] flex items-center gap-2 px-1">
+            <span className="material-symbols-outlined text-lg">verified_user</span>
+            AI Recommended Interventions
           </h3>
-          <div className="flex-1 space-y-4 overflow-y-auto custom-scrollbar pr-2 max-h-[440px]">
+          <div className="flex-1 space-y-4 overflow-y-auto custom-scrollbar pr-2 max-h-[480px]">
             {Object.entries(apiData?.greenhouse?.issues || {}).map(([key, val]) => (
-              <div key={key} className="bg-white p-4 rounded-xl border border-[#D4C5A9]/50 shadow-sm transition-transform hover:scale-[1.02]">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-[#5C3D2E] text-sm font-bold capitalize">{key.replace('_', ' ')}</span>
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${val.status === 'CRITICAL' ? 'bg-red-100 text-red-600' : 'bg-[#E8A838]/20 text-[#E8A838]'}`}>
-                    {val.status} Fix
+              <div key={key} className="bg-surface-container-lowest p-5 rounded-2xl border border-outline-variant/10 shadow-sm transition-all hover:translate-x-1">
+                <div className="flex justify-between items-center mb-3">
+                  <span className="text-on-surface text-sm font-bold capitalize italic serif-text">{key.replace('_', ' ')} Adjustment</span>
+                  <span className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest ${val.status === 'CRITICAL' ? 'bg-error-container text-on-error-container' : 'bg-tertiary-fixed text-on-tertiary-fixed'}`}>
+                    {val.status} FIX
                   </span>
                 </div>
-                <p className="text-gray-600 text-xs font-semibold leading-relaxed">
-                  → {val.action}
+                <p className="text-on-surface-variant text-[13px] font-medium leading-relaxed">
+                   {val.action}
                 </p>
               </div>
             ))}
 
             {Object.entries(apiData?.fertilizers || {}).filter(([k,v]) => v.status === 'Deficient').map(([k,v]) => (
-              <div key={`fert-${k}`} className="bg-white p-4 rounded-xl border border-[#4CAF78]/40 shadow-sm transition-transform hover:scale-[1.02]">
-                <div className="flex justify-between items-center mb-2">
-                   <span className="text-[#1A6B3C] text-sm font-bold uppercase">{k} DEFICIT (-{v.deficit} kg)</span>
+              <div key={`fert-${k}`} className="bg-surface-container-lowest p-5 rounded-2xl border border-primary/20 shadow-sm transition-all hover:translate-x-1">
+                <div className="flex justify-between items-center mb-3 text-primary">
+                   <span className="text-xs font-black uppercase tracking-[0.1em]">{k} DEFICIT (-{v.deficit} kg)</span>
+                   <span className="material-symbols-outlined text-lg">science</span>
                 </div>
-                <p className="text-gray-600 text-xs font-semibold leading-relaxed">
-                  → Add {v.dose_kg_ha} of {v.fertilizer}
+                <p className="text-on-surface text-[13px] font-bold leading-relaxed mb-1">
+                   Add {v.dose_kg_ha} of {v.fertilizer}
                 </p>
-                <p className="text-[#4CAF78] text-[9px] uppercase font-bold mt-1 tracking-widest opacity-80">{v.timing}</p>
+                <p className="text-primary text-[10px] uppercase font-black tracking-widest opacity-60 italic">{v.timing}</p>
               </div>
             ))}
           </div>
         </div>
-
       </div>
     </div>
   );

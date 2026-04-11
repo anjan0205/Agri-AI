@@ -1,31 +1,56 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;500;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --leaf: #1A6B3C;
-  --sprout: #4CAF78;
-  --harvest: #E8A838;
-  --soil: #5C3D2E;
-  --mist: #F0F7F2;
-  --clay: #D4C5A9;
-  --sky: #1B4F8A;
+  --primary: #005129;
+  --surface: #e9ffed;
+  --on-surface: #042012;
 }
 
 body {
-  background-color: var(--mist);
-  color: var(--soil);
-  font-family: 'DM Sans', sans-serif;
-  min-height: 100vh;
-  /* Botanical subtle texture backdrop overlay */
-  background-image: radial-gradient(var(--clay) 1px, transparent 1px);
-  background-size: 24px 24px;
+  font-family: 'Manrope', sans-serif;
+  background-color: #e9ffed;
+  color: #042012;
+  scroll-behavior: smooth;
+  /* Fixed subtle watermark background */
+  background-image: url('/logo_modern.png');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-attachment: fixed;
+  background-size: 60%;
+  image-rendering: -webkit-optimize-contrast;
 }
 
-h1, h2, h3, h4, h5, h6, .font-heading {
-  font-family: 'Playfair Display', serif;
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(233, 255, 237, 0.95); /* matching --surface with high opacity to keep it subtle */
+  z-index: -1;
+}
+
+.serif-text {
+  font-family: 'Noto Serif', serif;
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 81, 41, 0.05);
+  box-shadow: 0 8px 32px 0 rgba(0, 81, 41, 0.05);
+}
+
+.primary-gradient {
+  background: linear-gradient(135deg, #005129 0%, #1a6b3c 100%);
+}
+
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  vertical-align: middle;
 }
 
 /* Animations */
@@ -38,23 +63,17 @@ h1, h2, h3, h4, h5, h6, .font-heading {
   50% { opacity: .5; }
 }
 
-@layer base {
-  input[type="number"]::-webkit-inner-spin-button,
-  input[type="number"]::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-  }
-}
-
 .custom-scrollbar::-webkit-scrollbar {
   height: 6px;
   width: 6px;
 }
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: var(--mist);
-  border-radius: 10px;
+  background: transparent;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: var(--sprout);
+  background: #1a6b3c33;
   border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #1a6b3c66;
 }

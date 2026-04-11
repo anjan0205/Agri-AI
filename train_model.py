@@ -71,14 +71,12 @@ def apply_feature_engineering(df):
     df['npk_ratio_np'] = df['nitrogen'] / (df['phosphorus'] + 0.001)
     df['npk_ratio_nk'] = df['nitrogen'] / (df['potassium'] + 0.001)
 
-    # Water/Climate derived
     df['water_stress'] = df['evapotranspiration'] / (df['rainfall'] + 1)
     df['solar_temp'] = df['solar_radiation'] / (df['temperature'] + 1)
     df['temp_humidity'] = df['temperature'] * df['humidity'] / 100
     df['rainfall_total'] = df['Rainfall_mm'] + df['rainfall']
 
-    # Interaction/Condition derived
-    # Ensure irrigation and water_availability are numeric before multiplying
+   
     df['irr_water'] = df['irrigation'].astype(float) * df['water_availability']
     df['ph_deviation'] = abs(df['soil_ph'] - 7.0)
     df['fertilizer_irr'] = df['Fertilizer_Used'].astype(int) * df['Irrigation_Used'].astype(int)
@@ -221,9 +219,8 @@ def build_preprocessor():
 
 def train_classifier(X_train, y_train, X_val=None, y_val=None):
     print("\nTraining tuned VotingClassifier with early stopping where applicable…")
-    # Combine train and validation for hyperparameter search (using only train for simplicity)
+
     voting_clf, best_params = tune_hyperparameters(X_train, y_train)
-    # Save best_params for reporting later (global variable)
     global TUNED_PARAMS
     TUNED_PARAMS = best_params
     return voting_clf
@@ -261,7 +258,6 @@ def save_artifacts(preprocessor, regressor, classifier, le_tier,
     with open(f"{MODELS_DIR}/tier_labels.json", "w") as f:
         json.dump(tier_info, f, indent=2)
 
-    # Write metrics JSON for UI consumption
     metrics = {
         "classification_accuracy": round(cls_metrics[0] * 100, 2),
         "regression_mae": round(reg_metrics[0], 4),
@@ -299,7 +295,6 @@ def main():
     le_tier = LabelEncoder()
     y_cls = le_tier.fit_transform(y_cls_raw)
 
-    # Train/test split with stratification
     (X_train, X_test,
      y_r_train, y_r_test,
      y_c_train, y_c_test) = train_test_split(
@@ -308,28 +303,24 @@ def main():
         stratify=y_cls
     )
 
-    # Preprocess
     preprocessor = build_preprocessor()
     X_train_t = preprocessor.fit_transform(X_train)
     X_test_t  = preprocessor.transform(X_test)
-    # Split classification train set for validation
+   
     X_c_train, X_c_val, y_c_train, y_c_val = train_test_split(
         X_train, y_c_train, test_size=0.2, random_state=42, stratify=y_c_train
     )
-    # Transform validation splits for classifier
+  
     X_c_train_t = preprocessor.transform(X_c_train)
     X_c_val_t   = preprocessor.transform(X_c_val)
 
-    # Train
     regressor  = train_regressor(X_train_t, y_r_train, X_test_t, y_r_test)
     classifier = train_classifier(X_c_train_t, y_c_train, X_c_val_t, y_c_val)
 
-    # Evaluate
     reg_metrics = evaluate_regressor(regressor, X_test_t, y_r_test)
     cls_metrics = evaluate_classifier(classifier, X_test_t, y_c_test,
                                       le_tier.classes_)
 
-    # Save
     save_artifacts(preprocessor, regressor, classifier, le_tier,
                    reg_metrics, cls_metrics)
     print("\nDone.")

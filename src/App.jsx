@@ -1,9 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Leaf, Bell, Search, MapPin, 
-  Settings, Sparkles, BarChart3, ChevronDown, Droplet
-} from 'lucide-react';
 import ClimateStrip from './components/ClimateStrip';
 import YieldPanel from './components/YieldPanel';
 import GreenhousePanel from './components/GreenhousePanel';
@@ -24,32 +20,32 @@ const INDIAN_STATES = {
 };
 
 const CROPS = [
-  { id: 'rice', name: 'Rice', icon: '🌾', suitability: 'Ideal' },
-  { id: 'maize', name: 'Maize', icon: '🌽', suitability: 'Good' },
-  { id: 'mirchi', name: 'Mirchi', icon: '🌶️', suitability: 'Ideal' },
-  { id: 'onion', name: 'Onion', icon: '🧅', suitability: 'Moderate' },
-  { id: 'tomato', name: 'Tomato', icon: '🍅', suitability: 'Good' },
-  { id: 'sugarcane', name: 'Sugarcane', icon: '🎋', suitability: 'Ideal' },
-  { id: 'peanut', name: 'Groundnut', icon: '🥜', suitability: 'Good' },
-  { id: 'cotton', name: 'Cotton', icon: '☁️', suitability: 'Moderate' },
-  { id: 'soybean', name: 'Soybean', icon: '🫘', suitability: 'Good' },
-  { id: 'potato', name: 'Potato', icon: '🥔', suitability: 'Moderate' },
+  { id: 'rice', name: 'Rice', icon: '🌾' },
+  { id: 'maize', name: 'Maize', icon: '🌽' },
+  { id: 'mirchi', name: 'Mirchi', icon: '🌶️' },
+  { id: 'onion', name: 'Onion', icon: '🧅' },
+  { id: 'tomato', name: 'Tomato', icon: '🍅' },
+  { id: 'sugarcane', name: 'Sugarcane', icon: '🎋' },
+  { id: 'peanut', name: 'Groundnut', icon: '🥜' },
+  { id: 'cotton', name: 'Cotton', icon: '☁️' },
+  { id: 'soybean', name: 'Soybean', icon: '🫘' },
+  { id: 'potato', name: 'Potato', icon: '🥔' },
 ];
 
-const LAND_TYPES = [
-  { id: 'clay', name: 'Clay', desc: '(Moisture-Rich)', icon: '🌱', retention: 90 },
-  { id: 'sandy', name: 'Sandy Loam', desc: '(Well-drained)', icon: '🪨', retention: 40 },
-  { id: 'loamy', name: 'Loamy Alluvial', desc: '(Balanced)', icon: '🌾', retention: 70 },
-  { id: 'laterite', name: 'Laterite', desc: '(Acidic)', icon: '🏜️', retention: 30 },
-  { id: 'saline', name: 'Saline', desc: '(High Salt)', icon: '🌊', retention: 20 },
+const SOIL_TYPES = [
+  { id: 'loamy', name: 'Alluvial Loamy', icon: 'layers' },
+  { id: 'clay', name: 'Black Cotton', icon: 'layers' },
+  { id: 'sandy', name: 'Sandy Red', icon: 'layers' },
+  { id: 'laterite', name: 'Laterite Plateu', icon: 'layers' },
+  { id: 'saline', name: 'Saline Coastal', icon: 'layers' },
 ];
 
 export default function App() {
   const [inputs, setInputs] = useState({
-    location: 'Guntur',
-    lat: 16.3067,
-    lon: 80.4365,
-    crop: 'mirchi',
+    location: 'Punjab',
+    lat: 31.1471,
+    lon: 75.3412,
+    crop: 'rice',
     landType: 'loamy'
   });
 
@@ -77,23 +73,18 @@ export default function App() {
     setShowYield(false);
 
     try {
-      // 1. Fetch live Open-Meteo Data
       const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${inputs.lat}&longitude=${inputs.lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m&daily=precipitation_sum,shortwave_radiation_sum&timezone=auto`);
       const weather = await res.json();
       setMeteoData(weather);
 
-      // Extract required fields
       const temp = weather.current.temperature_2m;
       const hum = weather.current.relative_humidity_2m;
       const wind = weather.current.wind_speed_10m;
-      
-      // Calculate monthly precipitation equivalent and radiation average
       const dailyRain = weather.daily.precipitation_sum || [];
-      const rf = (dailyRain[0] || 0) * 15; // Estimating a 15-day scaling factor based on immediate forecasts
+      const rf = (dailyRain[0] || 0) * 15;
       const dailyRad = weather.daily.shortwave_radiation_sum || [];
-      const sr = (dailyRad[0] || 0) * 10; // Simple scaling to W/m2 equivalences
+      const sr = (dailyRad[0] || 0) * 10;
 
-      // Provide baseline NPK matching the previous logic based on land type
       const soilLookup = {
         loamy: { ph: 6.5, n: 60, p: 40, k: 50 },
         clay: { ph: 6.0, n: 30, p: 20, k: 30 },
@@ -103,7 +94,6 @@ export default function App() {
       };
       const soil = soilLookup[inputs.landType] || soilLookup.loamy;
 
-      // 2. Transmit exact API match mapping to local Python server for heavy determinism
       const apiResponse = await fetch('/api/advise', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -130,9 +120,15 @@ export default function App() {
       
       setApiData(aiData);
       setShowYield(true);
+
+      // Scroll to results
+      setTimeout(() => {
+        document.getElementById('yield-report')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 300);
+
     } catch (err) {
       console.error(err);
-      alert("Analysis failed. Please make sure the Python API is running on port 5000.");
+      alert("Analysis failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -141,174 +137,166 @@ export default function App() {
   const handleSimulate = () => {
     if (apiData) {
       setShowGreenhouse(true);
-      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+      setTimeout(() => {
+        document.getElementById('simulation-report')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
     } else {
       alert("Please Analyze local yields first!");
     }
   };
 
   return (
-    <div className="min-h-screen pb-20">
-      {/* 1. HEADER BAR */}
-      <header className="sticky top-0 z-50 bg-[#0A2617]/95 backdrop-blur-md border-b border-[#1A6B3C]/30 shadow-lg">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2">
-            <img src="/logo_modern.png" alt="Agri-AI Logo" className="w-9 h-9 object-contain rounded-lg" />
-            <span className="font-heading font-bold text-xl text-white tracking-tight">Agri-AI</span>
+    <div className="min-h-screen bg-surface selection:bg-primary/10">
+      {/* 1. HEADER */}
+      <header className="w-full sticky top-0 z-50 bg-surface/80 backdrop-blur-md border-b border-outline-variant/10">
+        <div className="max-w-[1440px] mx-auto px-8 py-4 flex justify-between items-center">
+          <div className="text-2xl font-bold text-primary tracking-tight serif-text flex items-center gap-3">
+            <img src="/logo_modern.png" alt="Agri-AI" className="w-10 h-10 object-contain rounded-lg shadow-sm" />
+            Agri-AI
           </div>
-          </div>
-          
-          <div className="hidden md:flex items-center gap-2 px-4 py-1.5 bg-[#4CAF78]/10 rounded-full border border-[#4CAF78]/20">
-            <span className="w-2 h-2 rounded-full bg-[#4CAF78] pulse-dot"></span>
-            <span className="text-xs font-bold text-[#1A6B3C] uppercase tracking-wider">Automated Regional Diagnostics</span>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <button className="text-white/80 hover:text-[#4CAF78] transition-colors relative">
-              <Bell size={20} />
-              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-[#E8A838] rounded-full border border-[#0A2617]"></span>
-            </button>
-            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#1A6B3C] to-[#4CAF78] flex items-center justify-center text-white font-bold text-sm shadow-sm">
-              PA
+          <nav className="hidden md:flex gap-8 items-center font-bold text-xs uppercase tracking-widest text-on-surface-variant">
+            <a className="text-primary border-b-2 border-primary pb-1 cursor-pointer">Precision Diagnostics</a>
+            <a className="hover:text-primary transition-colors cursor-pointer">ML Yield Models</a>
+            <a className="hover:text-primary transition-colors cursor-pointer">Greenhouse Simulation</a>
+          </nav>
+          <div className="flex items-center gap-6">
+            <div className="relative cursor-pointer group">
+              <span className="material-symbols-outlined text-[#1A6B3C] group-hover:scale-110 transition-transform">notifications</span>
+              <span className="absolute -top-1 -right-1 w-2 h-2 bg-error rounded-full outline outline-2 outline-surface"></span>
+            </div>
+            <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-container shadow-sm">
+              <img 
+                alt="User" 
+                className="w-full h-full object-cover" 
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuA5ntSEE75N51tW1nNKzgrP3v-W6yUHX1pF2hKuUAz7nMZx5Bh5ZkLaEQjP37VDCL0c_0aR0h_lkY19lWtYLe47ajj9fqt0vGKDl5d0n0kghv6rfTXMloMxUTG3xYJ3oZ8gcROH16WN9zcD9A6Jd5sK086ZRkN9DNOGCybEgarTQyIgmrOebizQH5cjfMmjlKAOnAU0kh1QmegC33HgjyNMmLcLNULyweaEoq4DVd9ckQd-4JTshw64a_acea2jCiNaHeVNeJ2pewg" 
+              />
             </div>
           </div>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 md:px-6 mt-12 space-y-12">
+      <main className="max-w-[1440px] mx-auto px-8 pb-20">
         {/* 2. HERO SECTION */}
-        <section className="text-center relative">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+        <section className="py-16 md:py-24 grid md:grid-cols-2 gap-12 items-center">
+          <motion.div 
+            initial={{ opacity: 0, x: -30 }} 
+            animate={{ opacity: 1, x: 0 }}
+            className="space-y-8"
           >
-            <h1 className="text-5xl md:text-7xl font-heading mb-6 tracking-tight text-[#5C3D2E]">
-              Smart <span className="text-[#1A6B3C]">Location-Based</span> Farming
+            <div className="flex gap-3">
+              <span className="px-4 py-1.5 bg-primary-fixed text-on-primary-fixed rounded-full text-[10px] font-bold tracking-wider uppercase shadow-sm">99.2% Accuracy</span>
+              <span className="px-4 py-1.5 bg-surface-variant text-on-surface-variant rounded-full text-[10px] font-bold tracking-wider uppercase shadow-sm">20k Training Records</span>
+            </div>
+            <h1 className="text-5xl md:text-7xl font-bold text-on-surface leading-[1.1] serif-text">
+              Smart Location-Based <span className="text-primary italic">Farming</span>
             </h1>
-            <p className="text-lg text-[#5C3D2E]/80 max-w-2xl mx-auto font-medium">
-              Precision agriculture meets AI-driven editorial insights. 
-              Deploy localized strategies tailored to earth's micro-climates.
+            <p className="text-xl text-on-surface-variant leading-relaxed max-w-xl">
+              Harnessing satellite data and ML architectures to provide hyper-local crop optimization for Bharat systems. We curate your harvest's biological potential.
             </p>
-            <div className="mt-6 flex items-center justify-center gap-4">
-              <div className="px-4 py-1.5 bg-[#1A6B3C]/10 rounded-full border border-[#1A6B3C]/20 flex items-center gap-2 shadow-sm">
-                <Sparkles size={16} className="text-[#1A6B3C]" />
-                <span className="text-xs font-bold text-[#1A6B3C] uppercase tracking-wider">Model Accuracy: 85.9%</span>
+            <div className="flex flex-wrap gap-4 pt-4">
+              <button 
+                onClick={handlePredict}
+                className="primary-gradient text-white px-8 py-4 rounded-xl font-bold flex items-center gap-3 shadow-lg shadow-primary/20 hover:scale-105 duration-200 transition-all hover:shadow-xl active:scale-95"
+              >
+                {loading ? <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"/> : <span className="material-symbols-outlined">monitoring</span>}
+                Analyze & Predict Yield
+              </button>
+              <button 
+                onClick={handleSimulate}
+                disabled={!apiData}
+                className="glass-card text-primary px-8 py-4 rounded-xl font-bold border border-primary/10 hover:bg-surface-variant transition-all hover:scale-105 active:scale-95 disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed"
+              >
+                Simulate Master Greenhouse
+              </button>
+            </div>
+          </motion.div>
+
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }} 
+            animate={{ opacity: 1, scale: 1 }}
+            className="relative rounded-[2.5rem] overflow-hidden aspect-square shadow-2xl group"
+          >
+            <img 
+              alt="Farmland" 
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuCaYPlDxkb0dNKOohB-VVMqgmiWm_9yy9JALEE-VyVh5JZ6s6OtsWOJoejvRXWVMTdqBnxOmM74CK99J00hrd4OT6BPBwizDeDAI8n_s_RCiyf0ehC_eytdk4atr-HKxm54fbEdfCoW4cIrRMomfxkNrRNfHVDYeUCuBvB8NQAzwdOoV3wQT2WJDIcwj_BAwkh7CrkZit4-WSRYPitu6QGoRTtwQOA17EBRCHItzxTy4J-Xww4pDmR5hZXLjyxYsw4OppZb9l-h1x0" 
+            />
+            <div className="absolute bottom-6 left-6 right-6 glass-card p-6 rounded-2xl flex justify-between items-center transform translate-y-0 group-hover:-translate-y-2 transition-transform duration-500">
+              <div>
+                <p className="text-[10px] font-bold text-primary uppercase tracking-widest mb-1">Current Focus</p>
+                <p className="text-lg font-semibold serif-text">{inputs.location} Regional Farm</p>
               </div>
-              <div className="px-4 py-1.5 bg-[#4CAF78]/10 rounded-full border border-[#4CAF78]/20 flex items-center gap-2 shadow-sm">
-                <BarChart3 size={16} className="text-[#4CAF78]" />
-                <span className="text-xs font-bold text-[#4CAF78] uppercase tracking-wider">Trained on 20k Records</span>
+              <div className="text-right">
+                <p className="text-[10px] font-bold text-primary uppercase tracking-widest mb-1">Health Index</p>
+                <p className="text-lg font-semibold serif-text text-primary">0.94 NDVI</p>
               </div>
             </div>
           </motion.div>
         </section>
 
-        {/* 3. INPUT CARD */}
-        <motion.section 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.15 }}
-          className="bg-white/80 backdrop-blur-xl rounded-3xl p-6 shadow-xl shadow-[#1A6B3C]/5 border border-[#D4C5A9]/40 relative z-20 hover:shadow-2xl hover:shadow-[#1A6B3C]/10 transition-shadow duration-500"
-        >
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* A. Location */}
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-[#1A6B3C] uppercase tracking-wider pl-1">Location</label>
-              <div className="relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#5C3D2E]/40" size={18} />
-                <select 
-                  className="w-full pl-12 pr-4 py-4 bg-[#F0F7F2] border-none rounded-2xl text-[#5C3D2E] font-bold appearance-none focus:ring-2 focus:ring-[#4CAF78] outline-none"
-                  value={inputs.location}
-                  onChange={(e) => updateLocation(e.target.value)}
-                >
-                  {Object.keys(INDIAN_STATES).map(s => <option key={s} value={s}>{s}</option>)}
-                </select>
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center text-[#E8A838]">
-                  <MapPin size={16} />
+        {/* 3. INPUT SECTION */}
+        <section className="mb-20">
+          <div className="bg-surface-container-low p-10 rounded-[2rem] space-y-10 shadow-sm border border-outline-variant/10">
+            <div className="flex flex-col md:flex-row gap-8">
+              {/* Location Selector */}
+              <div className="flex-1 space-y-3">
+                <label className="text-xs font-bold text-primary uppercase tracking-widest px-1">Location Geometry</label>
+                <div className="bg-surface-container-lowest p-4 rounded-xl flex items-center gap-3 border border-outline-variant/20 shadow-sm focus-within:ring-2 ring-primary/20 transition-all">
+                  <span className="material-symbols-outlined text-primary">location_on</span>
+                  <select 
+                    className="bg-transparent border-none focus:ring-0 w-full text-on-surface font-bold text-sm cursor-pointer"
+                    value={inputs.location}
+                    onChange={(e) => updateLocation(e.target.value)}
+                  >
+                    {Object.keys(INDIAN_STATES).map(s => <option key={s} value={s}>{s}</option>)}
+                  </select>
+                </div>
+              </div>
+
+              {/* Crop Selector */}
+              <div className="flex-1 space-y-3">
+                <label className="text-xs font-bold text-primary uppercase tracking-widest px-1">Target Crop Species</label>
+                <div className="bg-surface-container-lowest p-4 rounded-xl flex items-center gap-3 border border-outline-variant/20 shadow-sm focus-within:ring-2 ring-primary/20 transition-all">
+                  <span className="material-symbols-outlined text-primary">grass</span>
+                  <select 
+                    className="bg-transparent border-none focus:ring-0 w-full text-on-surface font-bold text-sm cursor-pointer"
+                    value={inputs.crop}
+                    onChange={(e) => setInputs(prev => ({ ...prev, crop: e.target.value }))}
+                  >
+                    {CROPS.map(c => <option key={c.id} value={c.id}>{c.icon} {c.name}</option>)}
+                  </select>
+                </div>
+              </div>
+
+              {/* Soil Selector */}
+              <div className="flex-1 space-y-3">
+                <label className="text-xs font-bold text-primary uppercase tracking-widest px-1">Soil Profile Type</label>
+                <div className="bg-surface-container-lowest p-4 rounded-xl flex items-center gap-3 border border-outline-variant/20 shadow-sm focus-within:ring-2 ring-primary/20 transition-all">
+                  <span className="material-symbols-outlined text-primary">layers</span>
+                  <select 
+                    className="bg-transparent border-none focus:ring-0 w-full text-on-surface font-bold text-sm cursor-pointer"
+                    value={inputs.landType}
+                    onChange={(e) => setInputs(prev => ({ ...prev, landType: e.target.value }))}
+                  >
+                    {SOIL_TYPES.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
+                  </select>
                 </div>
               </div>
             </div>
 
-            {/* B. Target Crop */}
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-[#1A6B3C] uppercase tracking-wider pl-1">Target Crop</label>
-              <div className="relative">
-                <select 
-                  className="w-full px-4 py-4 bg-[#F0F7F2] border-none rounded-2xl text-[#5C3D2E] font-bold appearance-none focus:ring-2 focus:ring-[#4CAF78] outline-none"
-                  value={inputs.crop}
-                  onChange={(e) => setInputs(prev => ({ ...prev, crop: e.target.value }))}
-                >
-                  {CROPS.map(c => (
-                    <option key={c.id} value={c.id}>{c.icon} {c.name}</option>
-                  ))}
-                </select>
-                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-[#5C3D2E]/40 pointer-events-none" size={18} />
-              </div>
-            </div>
-
-            {/* C. Land Type */}
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-[#1A6B3C] uppercase tracking-wider pl-1">Soil Type</label>
-              <div className="relative group">
-                <select 
-                  className="w-full px-4 py-4 bg-[#F0F7F2] border-none rounded-2xl text-[#5C3D2E] font-bold appearance-none focus:ring-2 focus:ring-[#4CAF78] outline-none"
-                  value={inputs.landType}
-                  onChange={(e) => setInputs(prev => ({ ...prev, landType: e.target.value }))}
-                >
-                  {LAND_TYPES.map(l => (
-                    <option key={l.id} value={l.id}>{l.icon} {l.name} {l.desc}</option>
-                  ))}
-                </select>
-                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-[#5C3D2E]/40 pointer-events-none" size={18} />
-              </div>
-            </div>
+            {/* 4. CLIMATE STRIP */}
+            <ClimateStrip meteoData={meteoData} />
           </div>
-        </motion.section>
+        </section>
 
-        {/* 4. LIVE CLIMATE STRIP */}
-        <motion.section
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-        >
-          <ClimateStrip lat={inputs.lat} lon={inputs.lon} meteoData={meteoData} setMeteoData={setMeteoData} />
-        </motion.section>
-
-        {/* 5. ACTION BUTTONS */}
-        <motion.section 
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.6, delay: 0.45 }}
-          className="flex flex-col sm:flex-row items-center justify-center gap-6"
-        >
-          <button 
-            onClick={handlePredict}
-            disabled={loading}
-            className="w-full sm:w-auto px-10 py-5 bg-gradient-to-r from-[#1A6B3C] to-[#4CAF78] text-white rounded-full font-bold text-lg shadow-lg shadow-[#4CAF78]/30 hover:scale-105 hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-3 disabled:opacity-70 disabled:hover:scale-100"
-          >
-            {loading ? <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"/> : <Settings className="hover:rotate-180 transition-transform duration-700" />}
-            Analyze & Predict Yield
-          </button>
-
-          <button 
-            onClick={handleSimulate}
-            disabled={!apiData}
-            className="w-full sm:w-auto px-10 py-5 bg-gradient-to-r from-[#1B4F8A] to-[#3A78C4] text-white rounded-full font-bold text-lg shadow-lg shadow-[#1B4F8A]/30 hover:scale-105 hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-3 disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed"
-          >
-            <Sparkles className="animate-pulse" />
-            Simulate Master Greenhouse
-          </button>
-        </motion.section>
-
-        {/* 6 & 7. PANELS */}
+        {/* 5. RESULTS PANELS */}
         <AnimatePresence>
           {showYield && apiData && (
              <motion.section 
-               initial={{ opacity: 0, height: 0 }}
-               animate={{ opacity: 1, height: 'auto' }}
-               exit={{ opacity: 0, height: 0 }}
-               className="overflow-hidden"
+               id="yield-report"
+               initial={{ opacity: 0, y: 30 }}
+               animate={{ opacity: 1, y: 0 }}
+               className="mb-20 scroll-mt-24"
              >
                <YieldPanel apiData={apiData} cropName={inputs.crop} />
              </motion.section>
@@ -316,22 +304,54 @@ export default function App() {
 
           {showGreenhouse && apiData && (
             <motion.section
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="overflow-hidden"
+              id="simulation-report"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-20 scroll-mt-24"
             >
               <GreenhousePanel apiData={apiData} cropName={inputs.crop} meteoData={meteoData} />
             </motion.section>
           )}
         </AnimatePresence>
 
-        {/* 8. CROP CALENDAR */}
+        {/* 6. SEASONAL CYCLE */}
         <section className="pt-10">
            <CropCalendar crop={inputs.crop} />
         </section>
 
       </main>
+
+      {/* 7. FOOTER */}
+      <footer className="bg-surface-container-highest py-16 px-8 mt-20">
+        <div className="max-w-[1440px] mx-auto grid md:grid-cols-4 gap-12">
+          <div className="col-span-2">
+            <h3 className="text-2xl font-bold serif-text text-primary mb-6">Agri-AI</h3>
+            <p className="text-on-surface-variant max-w-md leading-relaxed font-medium">
+              Empowering the Indian Kisan with the synthesis of machine intelligence and traditional wisdom. Our platform is the digital bridge for the next Green Revolution.
+            </p>
+          </div>
+          <div>
+            <h4 className="font-bold mb-6 text-xs uppercase tracking-widest text-primary">Capabilities</h4>
+            <ul className="space-y-4 text-on-surface-variant text-sm font-bold">
+              <li className="hover:text-primary transition-colors cursor-pointer">Yield Prediction</li>
+              <li className="hover:text-primary transition-colors cursor-pointer">Pest Diagnostic</li>
+              <li className="hover:text-primary transition-colors cursor-pointer">Soil Mapping</li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-bold mb-6 text-xs uppercase tracking-widest text-primary">System</h4>
+            <ul className="space-y-4 text-on-surface-variant text-sm font-bold">
+              <li className="hover:text-primary transition-colors cursor-pointer">FPO Docs</li>
+              <li className="hover:text-primary transition-colors cursor-pointer">Kisan API</li>
+              <li className="hover:text-primary transition-colors cursor-pointer">Research Lab</li>
+            </ul>
+          </div>
+        </div>
+        <div className="max-w-[1440px] mx-auto mt-16 pt-8 border-t border-outline-variant/30 flex justify-between items-center text-[10px] font-bold text-primary/40 uppercase tracking-widest">
+          <span>© 2024 Agri-AI Bharat Systems</span>
+          <span>Digital India Agricultural Alliance Partner</span>
+        </div>
+      </footer>
     </div>
   );
 }

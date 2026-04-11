@@ -31,9 +31,9 @@ try:
     preprocessor = joblib.load(os.path.join(MODELS_DIR, "preprocessor.joblib"))
     regressor = joblib.load(os.path.join(MODELS_DIR, "yield_regressor.joblib"))
     classifier = joblib.load(os.path.join(MODELS_DIR, "tier_classifier.joblib"))
-    print("✅ ML Models loaded successfully.")
+    print("ML Models loaded successfully.")
 except Exception as e:
-    print(f"⚠️ Warning: Could not load ML models: {e}")
+    print(f"Warning: Could not load ML models: {e}")
     preprocessor = regressor = classifier = None
 
 def apply_feature_engineering(df):
@@ -142,7 +142,8 @@ def advise():
             "suitability": suitability,
             "greenhouse": greenhouse,
             "fertilizers": fertilizers,
-            "ml_prediction": ml_prediction
+            "ml_prediction": ml_prediction,
+            "mapped_features": mapped_features
         })
 
     except Exception as e:

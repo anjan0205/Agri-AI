@@ -1,74 +1,67 @@
 import React from 'react';
-import { Calendar } from 'lucide-react';
 
 export default function CropCalendar({ crop }) {
-  const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
   const currentMonthIdx = new Date().getMonth();
-
-  // Very simplified dataset for calendar timelines
-  const calendars = {
-    wheat: { sow: [10, 11], grow: [0, 1, 2], harvest: [3, 4] },
-    rice: { sow: [5, 6], grow: [7, 8, 9], harvest: [10, 11] },
-    maize: { sow: [5, 6], grow: [7, 8], harvest: [9, 10] },
-    mirchi: { sow: [6, 7], grow: [8, 9, 10, 11, 0, 1], harvest: [2, 3, 4] },
-    tomato: { sow: [5, 6], grow: [7, 8], harvest: [9, 10] },
-    sugarcane: { sow: [0, 1], grow: [2, 3, 4, 5, 6, 7, 8, 9, 10], harvest: [11, 0] },
-    potato: { sow: [9, 10], grow: [11, 0, 1], harvest: [2, 3] },
-    onion: { sow: [10, 11], grow: [0, 1, 2], harvest: [3, 4] },
-    peanut: { sow: [5, 6], grow: [7, 8], harvest: [9, 10] },
-    cotton: { sow: [4, 5], grow: [6, 7, 8, 9], harvest: [10, 11] },
-    soybean: { sow: [5, 6], grow: [7, 8], harvest: [9, 10] },
-    sorghum: { sow: [5, 6], grow: [7, 8], harvest: [9, 10] },
-    cabbage: { sow: [9, 10], grow: [11, 0], harvest: [1, 2] },
-  };
-
-  const schedule = calendars[crop] || calendars.wheat;
-
-  const getStatus = (m) => {
-    if (schedule.sow.includes(m)) return { status: 'Sowing Phase', color: 'bg-[#4CAF78]', text: 'text-white' };
-    if (schedule.grow.includes(m)) return { status: 'Vegetative Growth', color: 'bg-[#A3D977]', text: 'text-[#1A6B3C]' };
-    if (schedule.harvest.includes(m)) return { status: 'Harvest Ready', color: 'bg-[#E8A838]', text: 'text-white' };
-    return { status: 'Fallow / Rest', color: 'bg-white', text: 'text-gray-400' };
-  };
-
+  
   return (
-    <div className="bg-white/80 backdrop-blur-xl border border-[#D4C5A9]/40 rounded-3xl p-8 shadow-md">
-      <div className="flex items-center gap-3 mb-8">
-        <div className="p-2 bg-[#D4C5A9]/20 rounded-xl text-[#5C3D2E]">
-          <Calendar size={20} />
+    <div className="mb-20">
+      <div className="flex justify-between items-end mb-10">
+        <div>
+          <h2 className="text-3xl font-bold serif-text mb-2 uppercase tracking-tight">Seasonal Crop Cycle</h2>
+          <p className="text-on-surface-variant font-medium">Strategic temporal mapping for optimized {crop || 'regional'} harvest</p>
         </div>
-        <h3 className="text-2xl font-heading text-[#5C3D2E] font-bold">Annual Crop Architecture</h3>
+        <div className="flex items-center gap-2 bg-primary-fixed px-4 py-2 rounded-lg">
+          <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+          <span className="text-sm font-bold text-on-primary-fixed uppercase tracking-widest">Active Season</span>
+        </div>
       </div>
 
-      <div className="overflow-x-auto custom-scrollbar pb-6 pl-1">
-        <div className="flex gap-2 min-w-[900px]">
-          {MONTHS.map((m, i) => {
-            const { status, color, text } = getStatus(i);
-            const isCurrent = i === currentMonthIdx;
-            return (
-              <div key={m} className={`flex-1 flex flex-col`}>
-                <div className={`
-                  p-4 h-24 rounded-2xl flex flex-col justify-end transition-all
-                  ${color} ${isCurrent ? 'ring-2 ring-offset-2 ring-[#4CAF78] shadow-xl scale-[1.03] z-10' : 'border border-[#D4C5A9]/30'}
-                `}>
-                  <div className={`text-sm font-bold opacity-90 uppercase tracking-widest flex items-center justify-between ${text}`}>
-                    <span>{m}</span>
-                    {isCurrent && <span className="bg-white/30 text-white px-2 py-0.5 rounded-full text-[9px] tracking-wider animate-pulse">NOW</span>}
-                  </div>
-                  <div className={`font-medium text-xs leading-tight mt-1 ${text} opacity-90`}>{status}</div>
-                </div>
+      <div className="relative overflow-x-auto pb-10 custom-scrollbar">
+        <div className="min-w-[1000px] flex flex-col gap-8">
+          <div className="grid grid-cols-12 gap-1 px-4">
+            {months.map((m, i) => (
+              <div key={m} className={`text-center font-bold text-xs ${i === currentMonthIdx ? 'text-primary' : 'text-primary/40'}`}>
+                {m}
               </div>
-            );
-          })}
+            ))}
+          </div>
+          
+          <div className="relative h-20 bg-surface-container-high rounded-full overflow-hidden flex items-stretch border-[6px] border-surface-container-high shadow-inner">
+            <div className="w-[16.6%] bg-secondary-fixed flex items-center justify-center text-xs font-bold text-on-secondary-fixed-variant uppercase tracking-widest rounded-l-full">Sowing</div>
+            <div className="w-[33.3%] bg-primary flex items-center justify-center text-xs font-bold text-white uppercase tracking-widest">Growth Phase</div>
+            <div className="w-[25%] bg-tertiary-fixed flex items-center justify-center text-xs font-bold text-on-tertiary-fixed-variant uppercase tracking-widest">Harvest</div>
+            <div className="w-[25.1%] bg-surface-variant flex items-center justify-center text-xs font-bold text-on-surface-variant uppercase tracking-widest rounded-r-full">Zaid Crop</div>
+            
+            {/* Playhead */}
+            <div 
+              className="absolute top-0 bottom-0 w-1 bg-white/60 backdrop-blur-sm z-10 shadow-[0_0_15px_rgba(255,255,255,0.5)] transition-all duration-1000"
+              style={{ left: `${(currentMonthIdx / 12) * 100}%` }}
+            >
+              <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-on-surface text-white px-3 py-1 rounded text-[10px] font-bold">NOW</div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-4 gap-8">
+            <TimelineInfo icon="spa" title="Sowing Strategy" color="text-secondary" desc="Precision-seeded techniques with bio-fertilizer coating for enhanced root development and early vigor." />
+            <TimelineInfo icon="monitoring" title="Growth Analytics" color="text-primary" desc="AI-guided irrigation scheduling and nitrogen monitoring via regional multispectral satellite indices." />
+            <TimelineInfo icon="inventory_2" title="Harvest Window" color="text-tertiary" desc="Optimizing peak biological maturity and crop moisture levels to ensure premium Mandi quality grading." />
+            <TimelineInfo icon="restore" title="Soil Health" color="text-on-surface-variant" desc="Implementation of green manure and nitrogen-fixing cover crops to restore organic matter levels." />
+          </div>
         </div>
       </div>
-      
-      <div className="flex flex-wrap items-center gap-6 mt-6 justify-center">
-        <div className="flex items-center gap-2 text-xs font-bold text-[#5C3D2E]"><span className="w-4 h-4 rounded-full bg-[#4CAF78]"></span> Sowing</div>
-        <div className="flex items-center gap-2 text-xs font-bold text-[#5C3D2E]"><span className="w-4 h-4 rounded-full bg-[#A3D977]"></span> Growth</div>
-        <div className="flex items-center gap-2 text-xs font-bold text-[#5C3D2E]"><span className="w-4 h-4 rounded-full bg-[#E8A838]"></span> Harvest</div>
-        <div className="flex items-center gap-2 text-xs font-bold text-[#5C3D2E]"><span className="w-4 h-4 rounded-full bg-white border border-gray-300"></span> Fallow</div>
+    </div>
+  );
+}
+
+function TimelineInfo({ icon, title, color, desc }) {
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center gap-2">
+        <span className={`material-symbols-outlined ${color} text-sm`}>{icon}</span>
+        <h4 className="font-bold text-sm">{title}</h4>
       </div>
+      <p className="text-xs text-on-surface-variant leading-relaxed">{desc}</p>
     </div>
   );
 }
