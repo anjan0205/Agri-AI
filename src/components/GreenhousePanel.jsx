@@ -8,6 +8,10 @@ export default function GreenhousePanel({ apiData, cropName, meteoData }) {
     light: 12
   });
 
+  const [isAcreMode, setIsAcreMode] = useState(false);
+  const conv = isAcreMode ? 2.471 : 1; 
+  const unit = isAcreMode ? 'kg/acre' : 'kg/ha';
+
   const baseYield = {
     wheat: 35, rice: 40, maize: 45, cotton: 25, soybean: 30,
     barley: 30, mirchi: 20, tomato: 60, potato: 250, onion: 180,
@@ -165,10 +169,19 @@ export default function GreenhousePanel({ apiData, cropName, meteoData }) {
 
         {/* Diagnostic Interventions */}
         <div className="flex flex-col gap-6">
-          <h3 className="font-bold text-primary uppercase tracking-[0.2em] text-[10px] flex items-center gap-2 px-1">
-            <span className="material-symbols-outlined text-lg">verified_user</span>
-            AI Recommended Interventions
-          </h3>
+          <div className="flex justify-between items-center px-1">
+            <h3 className="font-bold text-primary uppercase tracking-[0.2em] text-[10px] flex items-center gap-2">
+              <span className="material-symbols-outlined text-lg">verified_user</span>
+              AI Recommended Interventions
+            </h3>
+            <button 
+              onClick={() => setIsAcreMode(!isAcreMode)}
+              className="text-[9px] font-black uppercase tracking-widest px-3 py-1 bg-primary text-white rounded-full hover:scale-105 active:scale-95 transition-all shadow-sm flex items-center gap-1"
+            >
+              <span className="material-symbols-outlined text-[10px]">straighten</span>
+              Unit: {isAcreMode ? 'Acre' : 'Hectare'}
+            </button>
+          </div>
           <div className="flex-1 space-y-4 overflow-y-auto custom-scrollbar pr-2 max-h-[480px]">
             {Object.entries(apiData?.greenhouse?.issues || {}).map(([key, val]) => (
               <div key={key} className="bg-surface-container-lowest p-5 rounded-2xl border border-outline-variant/10 shadow-sm transition-all hover:translate-x-1">
@@ -187,11 +200,11 @@ export default function GreenhousePanel({ apiData, cropName, meteoData }) {
             {Object.entries(apiData?.fertilizers || {}).filter(([k,v]) => v.status === 'Deficient').map(([k,v]) => (
               <div key={`fert-${k}`} className="bg-surface-container-lowest p-5 rounded-2xl border border-primary/20 shadow-sm transition-all hover:translate-x-1">
                 <div className="flex justify-between items-center mb-3 text-primary">
-                   <span className="text-xs font-black uppercase tracking-[0.1em]">{k} DEFICIT (-{v.deficit} kg)</span>
+                   <span className="text-xs font-black uppercase tracking-[0.1em]">{k} DEFICIT (-{(v.deficit / conv).toFixed(1)} {unit})</span>
                    <span className="material-symbols-outlined text-lg">science</span>
                 </div>
                 <p className="text-on-surface text-[13px] font-bold leading-relaxed mb-1">
-                   Add {v.dose_kg_ha} of {v.fertilizer}
+                   Add {v.dose_raw ? (v.dose_raw / conv).toFixed(1) : (parseFloat(v.dose_kg_ha) / conv).toFixed(1)} {unit} of {v.fertilizer}
                 </p>
                 <p className="text-primary text-[10px] uppercase font-black tracking-widest opacity-60 italic">{v.timing}</p>
               </div>

@@ -419,10 +419,12 @@ def recommend_fertilizers(features: dict, crop: str) -> dict:
             rec_data["deficit"] = round(deficit, 1)
             rec_data["fertilizer"] = n_info["product"]
             rec_data["dose_kg_ha"] = f"{round(dose, 1)} kg/ha"
+            rec_data["dose_raw"] = round(dose, 2)
             rec_data["timing"] = n_info["timing"]
         else:
             rec_data["status"] = "Adequate"
             rec_data["fertilizer"] = "Adequate"
+            rec_data["dose_raw"] = 0
             
         recs[n_key] = rec_data
 
