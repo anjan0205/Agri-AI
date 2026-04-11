@@ -82,23 +82,27 @@ export default function GreenhousePanel({ apiData, cropName, meteoData }) {
           </div>
 
           <div className="flex items-center gap-5 bg-surface-container-low p-5 rounded-2xl border border-primary/5 shadow-sm">
-            <div className={`p-3 rounded-xl shadow-sm material-symbols-outlined text-white ${simulationDelta >= 0 ? 'bg-primary' : 'bg-tertiary'}`}>
-               {simulationDelta >= 0 ? 'heat_base' : 'ac_unit'}
+            <div className={`p-3 rounded-xl shadow-sm material-symbols-outlined text-white ${simulationDelta >= 1 ? 'bg-orange-600' : simulationDelta <= -1 ? 'bg-primary' : 'bg-on-surface-variant'}`}>
+               {simulationDelta >= 1 ? 'heat_pump' : simulationDelta <= -1 ? 'ac_unit' : 'thermostat'}
             </div>
             <div className="flex-1">
-              <p className="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest mb-0.5">Climate Adjustment</p>
+              <p className="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest mb-1">Climate Adjustment Status</p>
               <div className="flex items-baseline gap-2">
                 <p className="text-3xl font-extrabold text-on-surface serif-text italic leading-none">
                   {simulationDelta > 0 ? '+' : ''}{simulationDelta.toFixed(1)}°C
                 </p>
-                <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-tight">Simulated Delta</span>
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-bold text-on-surface uppercase tracking-tight">Current Simulation</span>
+                  <p className="text-[10px] text-on-surface-variant font-medium">Shift from outdoor ambient</p>
+                </div>
               </div>
             </div>
-            <div className="text-right">
-               <p className="text-[10px] font-bold text-primary uppercase tracking-widest mb-0.5">Required</p>
-               <p className={`text-sm font-bold serif-text ${requiredDelta > 0 ? 'text-primary' : 'text-tertiary'}`}>
+            <div className="text-right border-l border-outline-variant/20 pl-5">
+               <p className="text-[10px] font-bold text-primary uppercase tracking-widest mb-1">Recommended Fix</p>
+               <p className={`text-xl font-extrabold serif-text ${requiredDelta > 0 ? 'text-orange-600' : 'text-primary'}`}>
                  {requiredDelta > 0 ? '+' : ''}{requiredDelta.toFixed(1)}°C
                </p>
+               <p className="text-[10px] font-bold text-on-surface-variant uppercase tracking-tighter">To hit {targetTemp}°C Optimal</p>
             </div>
           </div>
           
