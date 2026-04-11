@@ -110,9 +110,27 @@ export default function YieldPanel({ apiData, cropName }) {
                         {status}
                       </span>
                     </div>
-                    <p className="text-[11px] text-on-surface-variant font-medium">
-                      Current <span className="text-primary font-bold">{val.current}</span> | Required <span className="font-bold">{val.ideal}</span>
-                    </p>
+                    {['nitrogen', 'phosphorus', 'potassium'].includes(key.toLowerCase()) ? (() => {
+                      const fertKey = key.charAt(0).toUpperCase() + key.slice(1).toLowerCase();
+                      const fert = apiData.fertilizers?.[fertKey];
+                      if (fert && fert.status === 'Deficient') {
+                        const dose = fert.dose_raw ? (fert.dose_raw / 2.471).toFixed(1) : (parseFloat(fert.dose_kg_ha) / 2.471).toFixed(1);
+                        return (
+                          <p className="text-[11px] text-primary font-bold animate-pulse">
+                            Action: Apply <span className="underline">{dose} kg/acre</span> of {fert.fertilizer}
+                          </p>
+                        );
+                      }
+                      return (
+                        <p className="text-[11px] text-on-surface-variant font-medium">
+                          Current <span className="text-primary font-bold">{val.current}</span> | Required <span className="font-bold">{val.ideal}</span>
+                        </p>
+                      );
+                    })() : (
+                      <p className="text-[11px] text-on-surface-variant font-medium">
+                        Current <span className="text-primary font-bold">{val.current}</span> | Required <span className="font-bold">{val.ideal}</span>
+                      </p>
+                    )}
                   </div>
                 </div>
               );
