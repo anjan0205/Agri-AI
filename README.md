@@ -84,6 +84,22 @@ npm run dev
 
 ---
 
+## ☁️ Streamlit Cloud Deployment (New!)
+
+To deploy Agri-AI for free on the web using **Streamlit Community Cloud**:
+
+1.  **Push to GitHub**: Ensure your latest code (including `app.py` and the updated `requirements.txt`) is pushed to your repository.
+2.  **Access Streamlit**: Go to [share.streamlit.io](https://share.streamlit.io) and log in with your GitHub account.
+3.  **Deploy App**: Click **"New app"**, select your `Agri-AI` repository and branch.
+4.  **Entry Point**: Set the **"Main file path"** to `app.py`.
+5.  **Secrets**: If you use an OpenWeather API Key, add it in the **"Advanced settings" -> "Secrets"** as follows:
+    ```toml
+    OPENWEATHER_API_KEY = "your_key_here"
+    ```
+6.  **Launch**: Click **"Deploy!"**. Your site will be live on a `*.streamlit.app` URL.
+
+---
+
 ## 🎨 Design Philosophy
 
 Agri-AI diverges heavily from the standard "admin panel" aesthetic and embraces an **Editorial-Premium Aesthetic**. 
